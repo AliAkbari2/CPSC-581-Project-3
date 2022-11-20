@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+
+    <script>
+      //Load script
+      //Must be at first of script tag
+      let me;
+      let address = window.location.href;
+      let userName = address.substring(address.lastIndexOf("/") + 1);
+      console.log(userName);
+      if (userName === "chief") {
+        me = {
+          id: "chief",
+        };
+      } else {
+        me = {
+          id: "customer",
+        };
+      }
+      console.log("I logged in as " + me.id);
+
+      //Socket.io initialization
+      var socket = io();
+
+      //Socket joins room
+      socket.emit("joinApp", userName);
+
+      //Load orders from server
+      let orderVisibility; //global varaible
+      socket.on("orderLog", (orderLog) => {
+        orderVisibility = orderLog;
+        console.log(orderVisibility);
+        // console.log(orderVisibility[`sushi${1}Visibility`]);
+        //! problem reads null
+        loadVisibility(orderVisibility);
+        //Need to set the orderVisibility to each item
+      });
+
+      //Function
+      function loadVisibility(orderVisibility) {
+        //sushi id is toroshushi1
+        //burger id is burger1
+        //Four max for each item
+        for (let i = 1; i < 5; i++) {
+          //sushi
+          let item = document.getElementById(`torosushi${i}`);
+          item.setAttribute("visible", orderVisibility[`sushi${i}Visibility`]);
+          //burger
+          item = document.getElementById(`burger${i}`);
+          item.setAttribute("visible", orderVisibility[`burger${i}Visibility`]);
+        }
+
+        //sushi pic opacity
+        // item = document.getElementById(`toro_sushi_img`);
+        // item.setAttribute("opacity", orderVisibility[`toroPicOpasity`]);
+      }
+
+      socket.on("orderComplete", () => {
+        let e1 = document.getElementById("checkMark");
+        e1.object3D.visible = true;
+        setTimeout(reset, 5000);
+      });
+
+      socket.on("sendOrder", () => {
+        let e1 = document.getElementById("readyBell");
+        e1.object3D.visible = true;
+        setTimeout(reset, 5000);
+      });
+
+      function reset() {
+        let e1 = document.getElementById("checkMark");
+        e1.object3D.visible = false;
+        e1 = document.getElementById("readyBell");
+        e1.object3D.visible = false;
+      
+      }
+
+      socket.on("checkPlates", (b1, b2, b3, b4, foodType) => {
+        let showPic = false;
+        console.log("Checking PLates");
+        console.log(b1);
+        console.log(b2);
+        console.log(b3);
+        console.log(b4);
+        if (b1 === true) {
+          console.log("Outlining first plate");
+          let e1 = document.getElementById("plateOneOutline");
+          e1.object3D.visible = true;
+          e1.setAttribute("color", "red");
+          showPic = true;
+        }
+        if (b2 === true) {
+          console.log("Outlining second plate");
+          let e1 = document.getElementById("plateTwoOutline");
+          e1.object3D.visible = true;
+          e1.setAttribute("color", "red");
+          showPic = true;
+        }
+        if (b3 === true) {
+          console.log("Outlining second plate");
+          let e1 = document.getElementById("plateThreeOutline");
+          e1.object3D.visible = true;
+          e1.setAttribute("color", "red");
+          showPic = true;
+        }
+        if (b4 === true) {
+          console.log("Outlining second plate");
+          let e1 = document.getElementById("plateFourOutline");
+          e1.object3D.visible = true;
+          e1.setAttribute("color", "red");
+          showPic = true;
+        }
+
+        if (showPic === true && userName === "customer") {
+          if (foodType === "sushi") {
+            let el = document.getElementById("notifSushi");
+            el.object3D.visible = true
+          } else {
+            let el = document.getElementById("notifBurger");
+            el.object3D.visible = true
+          }
+        }
+
+        setTimeout(resetOutline, 5000);
+      });
+
+      function resetOutline() {
+        let e1 = document.getElementById("plateOneOutline");
+        let e2 = document.getElementById("plateTwoOutline");
+        let e3 = document.getElementById("plateThreeOutline");
+        let e4 = document.getElementById("plateFourOutline");
+
+        e1.object3D.visible = false;
+        e2.object3D.visible = false;
+        e3.object3D.visible = false;
+        e4.object3D.visible = false;
+
+        e1.setAttribute("color", "#f2ec6f");
+        e2.setAttribute("color", "#f2ec6f");
+        e3.setAttribute("color", "#f2ec6f");
+        e4.setAttribute("color", "#f2ec6f");
+        
+        let el2 = document.getElementById("notifBurger");
+        el2.object3D.visible = false
+        let el3 = document.getElementById("notifSushi");
+        el3.object3D.visible = false
+      }
+
+      //A-Frame variables need for functionality
+      let plateOneClicked = false;
+      let plateTwoClicked = false;
+      let plateThreeClicked = false;
+      let plateFourClicked = false;
+      let sushiVisibility = true;
+      let burgerVisibility = true;
+      let sushiPicOpacityIs = 1;
+
+      if (me.id == "customer") {
+        AFRAME.registerComponent("chefbar", {
+          init: function () {
+            const e1 = document.getElementById("chefFeatures");
+            e1.parentNode.removeChild(e1);
+          },
+        });
+
+        //A-Frame Functionality
+        AFRAME.registerComponent("plateoneclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              plateOneClicked = !plateOneClicked;
+              const e1 = document.getElementById("plateOneOutline");
+              if (!plateOneClicked) {
+                console.log("De-selected plate 1");
+                e1.object3D.visible = false;
+              } else {
+                console.log("Selected plate 1");
+                sushiVisibility = true;
+                burgerVisibility = true;
+                e1.object3D.visible = true;
+              }
+            });
+          },
+        });
+
+        AFRAME.registerComponent("platetwoclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              plateTwoClicked = !plateTwoClicked;
+              const e1 = document.getElementById("plateTwoOutline");
+              if (!plateTwoClicked) {
+                console.log("De-selected plate 2");
+                e1.object3D.visible = false;
+              } else {
+                console.log("Selected plate 2");
+                sushiVisibility = true;
+                burgerVisibility = true;
+                e1.object3D.visible = true;
+              }
+            });
+          },
+        });
+
+        AFRAME.registerComponent("platethreeclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              plateThreeClicked = !plateThreeClicked;
+              const e1 = document.getElementById("plateThreeOutline");
+              if (!plateThreeClicked) {
+                console.log("De-selected plate 3");
+                e1.object3D.visible = false;
+              } else {
+                console.log("Selected plate 3");
+                sushiVisibility = true;
+                burgerVisibility = true;
+                e1.object3D.visible = true;
+              }
+            });
+          },
+        });
+
+        AFRAME.registerComponent("platefourclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              plateFourClicked = !plateFourClicked;
+              const e1 = document.getElementById("plateFourOutline");
+              if (!plateFourClicked) {
+                console.log("De-selected plate 4");
+                e1.object3D.visible = false;
+              } else {
+                console.log("Selected plate 4");
+                sushiVisibility = true;
+                burgerVisibility = true;
+                e1.object3D.visible = true;
+              }
+            });
+          },
+        });
+
+        AFRAME.registerComponent("torosushiclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              event.preventDefault();
+              if (plateOneClicked) {
+                torosushi1.setAttribute("visible", sushiVisibility);
+                console.log("1");
+                socket.emit("orderChange", {
+                  visibility: sushiVisibility,
+                  name: "sushi1",
+                });
+              }
+              if (plateTwoClicked) {
+                torosushi2.setAttribute("visible", sushiVisibility);
+                console.log("2");
+                socket.emit("orderChange", {
+                  visibility: sushiVisibility,
+                  name: "sushi2",
+                });
+              }
+              if (plateThreeClicked) {
+                torosushi3.setAttribute("visible", sushiVisibility);
+                console.log("3");
+                socket.emit("orderChange", {
+                  visibility: sushiVisibility,
+                  name: "sushi3",
+                });
+              }
+              if (plateFourClicked) {
+                torosushi4.setAttribute("visible", sushiVisibility);
+                console.log("4");
+                socket.emit("orderChange", {
+                  visibility: sushiVisibility,
+                  name: "sushi4",
+                });
+              }
+              sushiVisibility = !sushiVisibility;
+            });
+          },
+        });
+
+        AFRAME.registerComponent("burgerclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              event.preventDefault();
+              if (plateOneClicked) {
+                burger1.setAttribute("visible", burgerVisibility);
+                socket.emit("orderChange", {
+                  visibility: burgerVisibility,
+                  name: "burger1",
+                });
+              }
+              if (plateTwoClicked) {
+                burger2.setAttribute("visible", burgerVisibility);
+                socket.emit("orderChange", {
+                  visibility: burgerVisibility,
+                  name: "burger2",
+                });
+              }
+              if (plateThreeClicked) {
+                burger3.setAttribute("visible", burgerVisibility);
+                socket.emit("orderChange", {
+                  visibility: burgerVisibility,
+                  name: "burger3",
+                });
+              }
+              if (plateFourClicked) {
+                burger4.setAttribute("visible", burgerVisibility);
+                socket.emit("orderChange", {
+                  visibility: burgerVisibility,
+                  name: "burger4",
+                });
+              }
+              burgerVisibility = !burgerVisibility;
+            });
+          },
+        });
+
+        AFRAME.registerComponent("orderreadyclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              socket.emit("orderReady");
+            });
+          },
+        });
+      } else if (me.id == "chief") {
+        // AFRAME.registerComponent("torosushiclickable", {
+        //   init: function () {
+        //     this.el.addEventListener("click", (event) => {
+        //       event.preventDefault();
+        //       if(sushiPicOpacityIs == 1)
+        //         {
+        //           sushiPicOpacityIs = 0.5;
+        //         }
+        //       else if (sushiPicOpacityIs == 0.5)
+        //         {
+        //           sushiPicOpacityIs = 1;
+        //         }
+        //       toro_sushi_img.setAttribute("opacity", `${sushiPicOpacityIs}`)
+        //       socket.emit('orderChange', {sushiPicOpacityIs, name:"toroPic"})
+        //     });
+        //   },
+        // });
+
+        AFRAME.registerComponent("customerbar", {
+          init: function () {
+            const e1 = document.getElementById("customerFeatures");
+            e1.parentNode.removeChild(e1);
+          },
+        });
+
+        AFRAME.registerComponent("orderupclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              socket.emit("confirmOrder");
+            });
+          },
+        });
+
+        AFRAME.registerComponent("noburgerclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              socket.emit("checkBurger");
+            });
+          },
+        });
+
+        AFRAME.registerComponent("nosushiclickable", {
+          init: function () {
+            this.el.addEventListener("click", (event) => {
+              socket.emit("checkSushi");
+            });
+          },
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <a-scene cursor="rayOrigin: mouse">
+      <a-entity camera look-controls position="0 1.6 0"></a-entity>
+
+      <a-plane
+        customerbar
+        id="customerFeatures"
+        color="#CCC"
+        height="13"
+        width="120"
+        position="0 10 -50"
+      >
+        <a-image
+          orderreadyclickable=""
+          id="orderReady"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/service_bell.png?v=1668806440227"
+          width="16"
+          height="9"
+          position="-40.14367 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+        ></a-image>
+        <a-image
+          torosushiclickable=""
+          id="toro_sushi_img"
+          src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.jpg?v=1668725635289"
+          width="16"
+          height="9"
+          position="-23.82268 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+        ></a-image>
+        <a-image
+          burgerclickable=""
+          id="burger_img"
+          src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.jpg?v=1668731776859"
+          width="16"
+          height="9"
+          position="-6.25177 -1.5 10"
+          material=""
+          geometry=""
+        ></a-image>
+
+        <a-image
+          nosushinotif=""
+          id="notifSushi"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/toro_sushi_x.png?v=1668811504141"
+          width="16"
+          height="9"
+          position="23.42691 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+          visible="false"
+        ></a-image>
+
+        <a-image
+          noburgernotif=""
+          id="notifBurger"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/burgerx.png?v=1668811512965"
+          width="16"
+          height="9"
+          position="23.44685 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+          visible="false"
+        ></a-image>
+      </a-plane>
+
+      <a-plane
+        chefbar
+        id="chefFeatures"
+        color="#CCC"
+        height="13"
+        width="120"
+        position="0 10 -50"
+      >
+        <a-image
+          orderupclickable=""
+          id="orderUp"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/service_bell.png?v=1668806440227"
+          width="16"
+          height="9"
+          position="-40.14367 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+        ></a-image>
+
+        <a-image
+          nosushiclickable=""
+          id="noSushi"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/toro_sushi_x.png?v=1668811504141"
+          width="16"
+          height="9"
+          position="-25.08027 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+        ></a-image>
+
+        <a-image
+          noburgerclickable=""
+          id="noBurger"
+          src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/burgerx.png?v=1668811512965"
+          width="16"
+          height="9"
+          position="-10.24777 -1.5 10"
+          opacity="1"
+          material=""
+          geometry=""
+          scale="0.85 0.94 1"
+        ></a-image>
+      </a-plane>
+
+      <a-entity
+        light="type: ambient; color: C; intensity: 1.2"
+        position="-0.5 1 4"
+      ></a-entity>
+
+      <a-assets>
+        <img
+          id="groundTexture"
+          src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/flooring.webp?v=1668847116775"
+        />
+      </a-assets>
+      <a-sky color="rgba(252, 248, 218, 0.55)"></a-sky>
+      <a-plane
+        src="#groundTexture"
+        rotation="-90 0 0"
+        position="0 -2 0"
+        width="100"
+        height="100"
+        repeat="10 10"
+      ></a-plane>
+
+      <a-gltf-model
+        id="shoji1"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="-3.53 -0.8 -1.44"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 125 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="shoji2"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="-3.53 -0.8 2"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 90 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="shoji3"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="-0.18 -0.8 2"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="shoji4"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="1.46 -0.8 2"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="shoji5"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="3.89 -0.8 2"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 180 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="shoji6"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="3.97 -0.8 -1.31"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 -90 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="shoji7"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        position="3.97 -0.8 -4.71"
+        scale="0.002 0.002 0.002"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/shoji.glb?v=1668849337352"
+        rotation="0 -90 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="tableModel"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/diner_booth.glb?v=1668837940870"
+        position="0 0.42 -2.8"
+        scale="2 1.5 2"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/diner_booth.glb?v=1668837940870"
+        rotation="0 0 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="chairleft"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        position="-2.5 -0.8 -2.8"
+        scale="2 1.5 2"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        rotation="0 90 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="chairright"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        position="2.5 -0.8 -2.8"
+        scale="2 1.5 2"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        rotation="0 -90 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        id="chairrback"
+        src="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        position="0 -0.65 0"
+        scale="2 1.5 2"
+        gltf-model="https://cdn.glitch.global/f08ca349-0a7b-45bb-88a3-a5efc005de43/old_diner_couch.glb?v=1668839452247"
+        rotation="0 180 0"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        plateoneclickable=""
+        id="plateModel"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+        position="0 0.9 -0.95"
+        scale="0.0011 0.0011 0.0011"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        platetwoclickable=""
+        id="plateModel2"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+        position="0 0.9 -1.8"
+        scale="0.0011 0.0011 0.0011"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        platethreeclickable=""
+        id="plateModel3"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+        position="0.9 0.9 -1.25"
+        scale="0.0011 0.0011 0.0011"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        platefourclickable=""
+        id="plateModel4"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+        position="-1 0.9 -1.28"
+        scale="0.0011 0.0011 0.0011"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/assietteplate.glb?v=1668836790347"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        checkmark=""
+        id="checkMark"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/checkmark.glb?v=1668809100964"
+        position="0.68399 0.89927 -1.94579"
+        scale="0.1 0.1 0.1"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/checkmark.glb?v=1668809100964"
+        visible="false"
+      ></a-gltf-model>
+
+      <a-gltf-model
+        readybell=""
+        id="readyBell"
+        src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/table_bell.glb?v=1668894472547"
+        position="0.42221 0.89927 -1.48879"
+        scale="0.03 0.03 0.03"
+        gltf-model="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/table_bell.glb?v=1668894472547"
+        visible="false"
+      ></a-gltf-model>
+
+      <a-circle
+        id="plateOneOutline"
+        rotation="-90 0 0"
+        position="-0.005 0.8122 -1.14"
+        material="color: #f2ec6f; opacity: 0.64; wireframeLinewidth: 4.75"
+        geometry="radius: 0.4"
+        visible="false"
+      ></a-circle>
+
+      <a-circle
+        id="plateTwoOutline"
+        rotation="-90 0 0"
+        position="0 0.81709 -2.1"
+        material="color: #f2ec6f; opacity: 0.64; wireframeLinewidth: 4.75"
+        geometry="radius: 0.41"
+        visible="false"
+      ></a-circle>
+
+      <a-circle
+        id="plateThreeOutline"
+        rotation="-90 0 0"
+        position="1.08 0.8122 -1.5"
+        material="color: #f2ec6f; opacity: 0.64; wireframeLinewidth: 4.75"
+        geometry="radius: 0.41"
+        visible="false"
+      ></a-circle>
+
+      <a-circle
+        id="plateFourOutline"
+        rotation="-90 0 0"
+        position="-1.18 0.812 -1.53694"
+        material="color: #f2ec6f; opacity: 0.64; wireframeLinewidth: 4.75"
+        geometry="radius: 0.41"
+        visible="false"
+      ></a-circle>
+
+      <a-gltf-model
+        id="burger1"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+        scale="0.008 0.008 0.008"
+        position="0.1 0.96993 -0.99"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="burger2"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+        scale="0.008 0.008 0.008"
+        position="-0.120 1.02993 -1.857"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="burger3"
+        visible="false"
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+        scale="0.008 0.008 0.008"
+        position="0.95 1 -1.4"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="burger4"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+        scale="0.008 0.008 0.008"
+        position="-1.11959 0.98144 -1.26044"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/burger.glb?v=1668731783140"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="torosushi1"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        scale="0.02 0.02 0.02"
+        rotation="-0.4 62.52 0"
+        position="-0.09 0.96993 -0.93"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="torosushi2"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        scale="0.02 0.02 0.02"
+        position="0.103 0.97 -1.73185"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        rotation="0 59.99999999999999 0"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="torosushi3"
+        visible="false"
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        scale="0.02 0.02 0.02"
+        position="0.85 1 -1"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+      ></a-gltf-model>
+      <a-gltf-model
+        id="torosushi4"
+        visible=""
+        src="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        scale="0.02 0.02 0.02"
+        position="-0.996 0.97 -1.3846"
+        gltf-model="https://cdn.glitch.global/1927f750-c70e-4de3-b27a-148f69e9ee0b/toro_sushi.glb?v=1668727055875"
+        rotation="0 -29.999999999999996 0"
+      ></a-gltf-model>
+    </a-scene>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <style>
+      body {
+        margin: 0 auto;
+        max-width: 800px;
+        padding: 0 20px;
+      }
+      
+      .main{
+        padding-top: 12vw;
+      }
+
+      .container {
+        display: flex;
+        align-content: center;
+        flex-direction: column;
+        flex-wrap: wrap;
+        border: 2px solid #dedede;
+        background-color: #f1f1f1;
+        border-radius: 5px;
+        padding: 20px;
+        margin: 3vw 0;
+      }
+
+      .container::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+
+      .container img {
+        float: left;
+        max-width: 60px;
+        width: 100%;
+        padding-left: 1rem;
+        border-radius: 50%;
+      }
+
+      .container img.right {
+        float: right;
+        margin-left: 20px;
+        margin-right: 0;
+      }
+      
+      .left{
+        padding-left: 2rem !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="main" class="main">
+      <!-- button to login as ame -->
+      <a href="/chief">
+        <div id="ame" class="container">
+          <img
+            src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/chef-icon-illustraton-vector_57048-38.webp?v=1668833415360"
+            width="50"
+            height="60"
+            alt="Avatar"
+          />
+          <p>Login as Chef</p>
+        </div>
+      </a>
+
+      <!-- button to login as gura -->
+      <a href="/customer">
+        <div id="gura" class="container">
+          <img
+            src="https://cdn.glitch.global/88ceb06d-6b25-4944-b69a-094ce1dff14d/customer.webp?v=1668833598457"
+            alt="Avatar"
+            width="50"
+            height="60"
+            class="left"
+          />
+          <p>Login as Customer</p>
+        </div>
+      </a>
+    </div>
+  </body>
+</html>
