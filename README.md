@@ -6,23 +6,37 @@ Create a novel interface to augment in-person and/or remote communication and co
 **Overall Description**    
 
 
+Current DevLink: https://glitch.com/edit/#!/seethedishes?path=index.html%3A1%3A0
+
+Current Website Link: https://seethedishes.glitch.me/
+
 Demo:  
 
 **Contribution**   
 Ali Akbari: 
 - 10 preliminary concept sketches for the touch base.  
+- Voice over for the Demo and Concept Video.
+- Implementation logic and design
 
 
 Mustafa Mukhlis:  
 - 10 preliminary concept sketches for the touch base.  
+- Implementation logic and design
+- Demo recording and presentation
 
 
 Joshua Ngo:   
-- 10 preliminary concept sketches for the touch base.  
+- 10 preliminary concept sketches for the touch base. 
+- Script for Demo and Concept Video
+- Implementation logic and design
+- Editing Demo and Concept Video
 
 
 Jin Sato:   
 - 10 preliminary concept sketches for the touch base.  
+- Server implementation for our application  
+- Implementation logic and design
+- Concept video still images
 
 
 
