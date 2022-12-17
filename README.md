@@ -1,5 +1,3 @@
-# CPSC-581-Project-3
-
 For our third project for CPSC 581 (Human Computer Interaction II), we were asked to:  
 Create a novel interface to augment in-person and/or remote communication and collaboration. Create a concept video based on a narrative storyboard, then implement and demonstrate the final system.  
 
