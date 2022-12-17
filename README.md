@@ -39,15 +39,3 @@ Jin Sato:
 - Implementation logic and design
 - Concept video still images
 
-
-
-The portfolio needs to include: 
-
-Overall description  
-10 concept sketches for each concept (10 for touch and 10 for sensor)  
-Write-up for the concept sketches  
-10 detailed sketches for each concept (10 for touch and 10 for sensor)  
-Write-up for detailed sketches  
-Concept video   
-Final demo video  
-URL to source code if any (Glitch link, GitHub repo link, GitHub Gist, etc)  
