@@ -3,6 +3,7 @@ Create a novel interface to augment in-person and/or remote communication and co
 
 **Overall Description**    
 
+After many sketches and discussions, we decided to go with a variation of many ideas merged together. Thus we landed on the following idea an application to help   restaurants with heavy traffic and high customer capacity handle its orders efficiently and taking a large chunk of the workload off of front of house employees. This allows customers a fast way to order food using a novel AR interface which helps them visually see the dishes on the menu and communicate between the chef with their order.  
 
 Current DevLink: https://glitch.com/edit/#!/seethedishes?path=index.html%3A1%3A0
 
